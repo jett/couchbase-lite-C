@@ -50,12 +50,16 @@ def BuildLibrary(sourceDir, libdir, libraries, extra_link_args):
     # so make sure it is relative path
     libdir = os.path.relpath(libdir)
 
+    pyModuleFilename = '_PyCBL'
+
     # Copy the CBL library here:
     libpath = libdir + "/libCouchbaseLiteC"
     if platform.system() == "Darwin":
         libpath += ".dylib"
+        pyModuleFilename += ".dylib"
     else:
         libpath += ".so"
+        pyModuleFilename += ".so"
     shutil.copy(libpath, ".")
 
     # CFFI stuff -- see https://cffi.readthedocs.io/en/latest/index.html
@@ -73,7 +77,7 @@ def BuildLibrary(sourceDir, libdir, libraries, extra_link_args):
         include_dirs=[sourceDir+CBL_INCLUDE_DIR, sourceDir+FLEECE_INCLUDE_DIR],
         library_dirs=["."],
         extra_link_args=extra_link_args)
-    ffibuilder.compile(verbose=True)
+    ffibuilder.compile(verbose=True, target=pyModuleFilename)
 
     os.remove("_PyCBL.c")
     os.remove("_PyCBL.o")
